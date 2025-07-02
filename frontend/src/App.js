@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { BarkadaProvider } from './context/BarkadaContext';
@@ -13,9 +13,24 @@ import JoinSession from './pages/JoinSession';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/LoadingSpinner';
+import ApiLimitModal from './components/ApiLimitModal';
 
 function App() {
   const { user, loading } = useAuth();
+  const [showApiLimitModal, setShowApiLimitModal] = useState(false);
+
+  // Show modal after a short delay when app loads
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowApiLimitModal(true);
+    }, 2000); // Show after 2 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const closeModal = () => {
+    setShowApiLimitModal(false);
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -62,6 +77,12 @@ function App() {
             <JoinSession />
           } />
         </Routes>
+
+        {/* API Limit Modal */}
+        <ApiLimitModal 
+          isOpen={showApiLimitModal} 
+          onClose={closeModal} 
+        />
       </div>
     </BarkadaProvider>
   );
