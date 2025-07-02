@@ -1,6 +1,7 @@
+// src/services/barkadaApi.js
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Create axios instance
 const api = axios.create({
@@ -14,53 +15,50 @@ const api = axios.create({
 
 // Enhanced API service for multi-login Barkada sessions
 class BarkadaApiService {
-  // Get Spotify auth URL for multi-login
-  static async getAuthUrl(friendSlot = null) {
+  // Get Spotify auth URL
+  static async getAuthUrl() {
     try {
-      const response = await api.get('/auth/login', {
-        params: friendSlot ? { friend_slot: friendSlot } : {}
-      });
+      const response = await api.get('/auth/login');
       return response.data;
     } catch (error) {
       console.error('Failed to get auth URL:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get authorization URL');
+      throw new Error(error.response?.data?.error || 'Failed to get authorization URL');
     }
   }
 
-  // Handle OAuth callback for multi-login
-  static async handleCallback(code, state, friendSlot = null) {
+  // Handle OAuth callback
+  static async handleCallback(code, state) {
     try {
       const response = await api.post('/auth/callback', {
         code,
-        state,
-        friend_slot: friendSlot
+        state
       });
       return response.data;
     } catch (error) {
       console.error('Callback failed:', error);
-      throw new Error(error.response?.data?.message || 'Authentication failed');
+      throw new Error(error.response?.data?.error || 'Authentication failed');
     }
   }
 
-  // Get all Barkada session users
+  // Get all Barkada session users (placeholder for now)
   static async getBarkadaUsers() {
     try {
-      const response = await api.get('/auth/barkada/users');
-      return response.data;
+      // For now, return mock data since we don't have session storage yet
+      return { users: [] };
     } catch (error) {
       console.error('Failed to get Barkada users:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get users');
+      throw new Error('Failed to get users');
     }
   }
 
-  // Clear Barkada session
+  // Clear Barkada session (placeholder for now)
   static async clearBarkadaSession() {
     try {
-      const response = await api.post('/auth/barkada/clear');
-      return response.data;
+      // For now, just return success
+      return { success: true };
     } catch (error) {
       console.error('Failed to clear Barkada session:', error);
-      throw new Error(error.response?.data?.message || 'Failed to clear session');
+      throw new Error('Failed to clear session');
     }
   }
 
@@ -108,16 +106,19 @@ class BarkadaApiService {
     }
   }
 
-  // Analyze Barkada music compatibility
+  // Analyze Barkada music compatibility (mock for now)
   static async analyzeBarkadaMusic(usersData) {
     try {
-      const response = await api.post('/analytics/barkada', {
-        users: usersData
-      });
-      return response.data;
+      // Mock analysis since we don't have backend analytics yet
+      return {
+        compatibility_score: 85,
+        shared_genres: ['Pop', 'Hip-Hop', 'R&B'],
+        common_artists: ['Taylor Swift', 'Drake', 'Billie Eilish'],
+        recommendations: []
+      };
     } catch (error) {
       console.error('Barkada analysis failed:', error);
-      throw new Error(error.response?.data?.message || 'Analysis failed');
+      throw new Error('Analysis failed');
     }
   }
 
@@ -175,49 +176,55 @@ class BarkadaApiService {
     }
   }
 
-  // Refresh access token
+  // Refresh access token (placeholder for now)
   static async refreshToken(refreshToken) {
     try {
-      const response = await api.post('/auth/refresh', {
-        refresh_token: refreshToken
-      });
-      return response.data;
+      // This would need to be implemented in your API
+      throw new Error('Token refresh not implemented yet');
     } catch (error) {
       console.error('Token refresh failed:', error);
-      throw new Error(error.response?.data?.message || 'Token refresh failed');
+      throw new Error('Token refresh failed');
     }
   }
 
-  // Create Barkada session (for session codes)
+  // Create Barkada session (placeholder for now)
   static async createBarkadaSession(sessionData) {
     try {
-      const response = await api.post('/sessions', sessionData);
-      return response.data;
+      // Mock session creation
+      return {
+        id: Date.now().toString(),
+        code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+        ...sessionData
+      };
     } catch (error) {
       console.error('Failed to create Barkada session:', error);
-      throw new Error(error.response?.data?.message || 'Failed to create session');
+      throw new Error('Failed to create session');
     }
   }
 
-  // Join Barkada session by code
+  // Join Barkada session by code (placeholder for now)
   static async joinBarkadaSession(sessionCode, userData) {
     try {
-      const response = await api.post(`/sessions/${sessionCode}/join`, userData);
-      return response.data;
+      // Mock session join
+      return { success: true, sessionCode };
     } catch (error) {
       console.error('Failed to join Barkada session:', error);
-      throw new Error(error.response?.data?.message || 'Failed to join session');
+      throw new Error('Failed to join session');
     }
   }
 
-  // Get session details
+  // Get session details (placeholder for now)
   static async getSessionDetails(sessionCode) {
     try {
-      const response = await api.get(`/sessions/${sessionCode}`);
-      return response.data;
+      // Mock session details
+      return {
+        code: sessionCode,
+        name: 'Sample Session',
+        participants: []
+      };
     } catch (error) {
       console.error('Failed to get session details:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get session details');
+      throw new Error('Failed to get session details');
     }
   }
 }
