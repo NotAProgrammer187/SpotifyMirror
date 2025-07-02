@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowApiLimitModal(true);
-    }, 2000); // Show after 2 seconds
+    }, 1000); // Show after 2 seconds
 
     return () => clearTimeout(timer);
   }, []);
