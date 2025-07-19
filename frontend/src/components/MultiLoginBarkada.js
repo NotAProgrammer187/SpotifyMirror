@@ -221,6 +221,7 @@ const useMultiBarkadaSession = () => {
     
     try {
       // Use your Laravel backend's analytics endpoint
+      console.log('🎵 Attempting backend analysis...');
       const analysisData = {
         users: users.map(user => ({
           id: user.id,
@@ -230,6 +231,7 @@ const useMultiBarkadaSession = () => {
       };
 
       const response = await BarkadaApiService.analyzeBarkadaMusic(analysisData);
+      console.log('🎵 Backend analysis successful:', response);
       setCombinedAnalysis(response);
       
     } catch (error) {
@@ -368,17 +370,54 @@ const MultiLoginBarkada = () => {
 
   const createGroupPlaylist = async () => {
     try {
+      // Check if we have the required data
+      if (!combinedAnalysis?.recommendedPlaylist) {
+        throw new Error('No playlist data available. Please analyze the session first.');
+      }
+
       const playlistData = {
         name: `Barkada Playlist - ${new Date().toLocaleDateString()}`,
         description: `Collaborative playlist from ${users.map(u => u.display_name).join(', ')}`,
-        tracks: combinedAnalysis.recommendedPlaylist.map(track => track.id)
+        tracks: (combinedAnalysis.recommendedPlaylist || []).map(track => track.id).filter(Boolean)
       };
 
-      await BarkadaApiService.createGroupPlaylist(playlistData, users[0].accessToken);
-      alert('Playlist created successfully! Check your Spotify app 🎵');
+      // Create playlist for ALL users
+      const promises = users.map(async (user, index) => {
+        try {
+          const userPlaylistData = {
+            ...playlistData,
+            name: `${playlistData.name} (${user.display_name})`
+          };
+          
+          console.log(`🎵 Creating playlist for ${user.display_name}...`);
+          const result = await BarkadaApiService.createGroupPlaylist(userPlaylistData, user.accessToken);
+          return { user: user.display_name, success: true, playlist: result.playlist };
+        } catch (error) {
+          console.error(`Failed to create playlist for ${user.display_name}:`, error);
+          return { user: user.display_name, success: false, error: error.message };
+        }
+      });
+      
+      const results = await Promise.all(promises);
+      const successful = results.filter(r => r.success);
+      const failed = results.filter(r => !r.success);
+      
+      if (successful.length > 0) {
+        alert(`🎵 Playlists created successfully for ${successful.map(r => r.user).join(', ')}!\n${failed.length > 0 ? `Failed for: ${failed.map(r => r.user).join(', ')}` : ''}`);
+      } else {
+        alert('❌ Failed to create playlists for all users. Please try again.');
+      }
     } catch (error) {
       console.error('Failed to create playlist:', error);
-      alert('Failed to create playlist. Please try again.');
+      
+      // Show more specific error message
+      if (error.message.includes('No playlist data available')) {
+        alert('⚠️ No playlist data available. Please start a session and analyze your music first!');
+      } else if (error.message.includes('access_token')) {
+        alert('🔐 Authentication expired. Please log in again.');
+      } else {
+        alert('❌ Failed to create playlist. Please try again.');
+      }
     }
   };
 

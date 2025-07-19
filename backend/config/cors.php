@@ -22,6 +22,8 @@ return [
     'allowed_origins' => [
         'http://localhost:8000',
         'http://127.0.0.1:8000',
+        // Add your production domains here:
+        // 'https://your-frontend-domain.vercel.app',
     ],
 
     'allowed_origins_patterns' => [],

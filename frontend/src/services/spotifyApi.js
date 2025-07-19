@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance for Spotify Mirror API
 export const spotifyApi = axios.create({
-  baseURL: 'http://127.0.0.1:8080/api/v1', // Match the domain exactly
+  baseURL: process.env.REACT_APP_API_URL, // Use environment variable
   timeout: 10000,
   withCredentials: true, // Re-enable credentials for session management
   headers: {
