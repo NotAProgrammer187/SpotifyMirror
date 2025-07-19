@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Plus, Music, Trash2, Play, UserCheck, QrCode, Share2, Volume2, TrendingUp, Heart, Calendar, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Plus, Music, Trash2, UserCheck, QrCode, Volume2, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import BarkadaApiService from '../services/barkadaApi';
 
@@ -311,7 +311,6 @@ const useMultiBarkadaSession = () => {
 
 // Main Multi-Login Barkada Component
 const MultiLoginBarkada = () => {
-  const { user: currentUser } = useAuth();
   const { authenticateUser, isAuthenticating, authenticatingSlot } = useMultiSpotifyAuth();
   const {
     users,
@@ -352,7 +351,7 @@ const MultiLoginBarkada = () => {
 
   const handleGenerateCode = async () => {
     try {
-      const code = await generateSessionCode();
+      await generateSessionCode();
       setShowSessionCode(true);
     } catch (error) {
       setError('Failed to generate session code');
